@@ -17,9 +17,17 @@ public class ProductEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String title;
+
+    private String category;
 
     private Double price;
 
-    private Integer stock;
+    private Integer stock; //Number of units
+
+    private Integer reserve; //Number of reserved stock units
+
+    @Version
+    private Long version;
 }

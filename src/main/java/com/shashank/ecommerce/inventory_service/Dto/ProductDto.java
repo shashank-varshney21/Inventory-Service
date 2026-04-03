@@ -8,6 +8,8 @@ public class ProductDto {
     @Id
     private Long id;
     private String title;
+    private String category;
     private Double price;
     private Integer stock;
+    private Integer reserve;
 }

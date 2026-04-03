@@ -1,24 +1,18 @@
 package com.shashank.ecommerce.inventory_service.Controllers;
 
+import com.shashank.ecommerce.inventory_service.Dto.QuerryProductDto;
 import com.shashank.ecommerce.inventory_service.Dto.ProductDto;
-import com.shashank.ecommerce.inventory_service.Services.ProductService;
 import com.shashank.ecommerce.inventory_service.Services.ProductServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestClient;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @Slf4j
-@RequiredArgsConstructor //This helps to get beans of all compositions/(other class instances), basically a dependency injection
+@RequiredArgsConstructor //This helps to get beans of all compositions/(other class instances if they're singleton or @Component), basically a dependency injection
 @RequestMapping("/products")
 public class ProductController {
 
@@ -46,5 +40,30 @@ public class ProductController {
     @GetMapping("/fetchOrder")
         public String fetchFromOrderService() {
             return productService.fetchFromOrderService();
+    }
+
+    @GetMapping("/products")
+        public List<ProductDto> filter(@RequestParam String category, @RequestParam Double minPrice, @RequestParam Double maxPrice) {
+            return productService.filter(category, minPrice, maxPrice);
+    }
+
+    @PostMapping("/create/product")
+    public ResponseEntity<String> createProduct(@RequestBody ProductDto productDto) {
+        return productService.createProduct(productDto);
+    }
+
+    @PostMapping("/add/product")
+        public ResponseEntity<String> addProduct(@RequestBody QuerryProductDto addProductDto){
+            return productService.addProduct(addProductDto);
+    }
+
+    @PostMapping("/reserve/product")
+    public ResponseEntity<String> reserveProduct(@RequestBody QuerryProductDto querryProductDto){
+        return productService.reserve(querryProductDto);
+    }
+
+    @PostMapping("/release/product")
+    public ResponseEntity<String> releaseProduct(@RequestBody QuerryProductDto querryProductDto){
+        return productService.release(querryProductDto);
     }
 }
