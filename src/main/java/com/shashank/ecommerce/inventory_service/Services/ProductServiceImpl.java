@@ -1,5 +1,6 @@
 package com.shashank.ecommerce.inventory_service.Services;
 
+import com.shashank.ecommerce.inventory_service.Dto.NotificationDto;
 import com.shashank.ecommerce.inventory_service.Dto.QuerryProductDto;
 import com.shashank.ecommerce.inventory_service.Dto.ProductDto;
 import com.shashank.ecommerce.inventory_service.Entity.ProductEntity;
@@ -11,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ProductServiceImpl {
+public class ProductServiceImpl implements ProductService {
 
     private final ProductRepo productRepo;
     private final ModelMapper modelMapper;
@@ -58,6 +60,16 @@ public class ProductServiceImpl {
     public ResponseEntity<String> createProduct(ProductDto productDto) {
         ProductEntity product = modelMapper.map(productDto, ProductEntity.class);
         productRepo.save(product);
+        //Sending Notification about the product
+        NotificationDto notificationDto = new NotificationDto("New product with title "+productDto.getTitle()+" is added!");
+        List<ServiceInstance> instances = discoveryClient.getInstances("notification-service");
+        ServiceInstance notificationService = instances.get(0);
+        String response = restClient.post()
+                .uri(notificationService.getUri()+"/api/v1/notification/send")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(notificationDto)
+                .retrieve()
+                .body(String.class);
         return ResponseEntity.status(HttpStatus.OK).body("SUCCESS");
     }
 
@@ -79,6 +91,16 @@ public class ProductServiceImpl {
         }
         product.setStock(product.getStock() + querryProductDto.getStock());
         productRepo.save(product);
+        //Sending Notification about the product
+        NotificationDto notificationDto = new NotificationDto("Fresh new stock of "+querryProductDto.getTitle()+" is added!");
+        List<ServiceInstance> instances = discoveryClient.getInstances("notification-service");
+        ServiceInstance notificationService = instances.get(0);
+        String response = restClient.post()
+                                    .uri(notificationService.getUri()+"/api/v1/notification/send")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .body(notificationDto)
+                                    .retrieve()
+                                    .body(String.class);
         return ResponseEntity.status(HttpStatus.OK).body("SUCCESS");
     }
 
@@ -132,4 +154,11 @@ public class ProductServiceImpl {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Conflict: Product was updated by another transaction. Please retry.");
         }
     }
+
+    @Override
+        public ResponseEntity<String> deleteProduct(String title) {
+            ProductEntity product = productRepo.findByTitle(title);
+            productRepo.delete(product);
+            return ResponseEntity.status(HttpStatus.OK).body("SUCCESS");
+        }
 }

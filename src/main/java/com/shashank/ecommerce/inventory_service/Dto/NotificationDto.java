@@ -2,12 +2,9 @@ package com.shashank.ecommerce.inventory_service.Dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-public class QuerryProductDto {
-    private String title;
-    private Integer stock;
+public class NotificationDto {
+    private final String text;
 }

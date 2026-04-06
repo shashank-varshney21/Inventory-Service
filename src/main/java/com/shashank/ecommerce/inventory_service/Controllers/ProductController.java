@@ -18,15 +18,15 @@ public class ProductController {
 
     private final ProductServiceImpl productService;
 
-    @GetMapping
-    public ResponseEntity<List<ProductDto>> getAllProducts() {
+    @GetMapping()
+        public ResponseEntity<List<ProductDto>> getAllProducts() {
         log.info("Fetching all products via controller");
         List<ProductDto> inventories = productService.getAllProducts();
         return ResponseEntity.ok(inventories);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDto> getProductById(@PathVariable Long id) {
+        public ResponseEntity<ProductDto> getProductById(@PathVariable Long id) {
         log.info("Fetching product by id via controller");
         ProductDto inventory = productService.getProductById(id);
         return ResponseEntity.ok(inventory);
@@ -42,28 +42,33 @@ public class ProductController {
             return productService.fetchFromOrderService();
     }
 
-    @GetMapping("/products")
+    @GetMapping("/filter")
         public List<ProductDto> filter(@RequestParam String category, @RequestParam Double minPrice, @RequestParam Double maxPrice) {
             return productService.filter(category, minPrice, maxPrice);
     }
 
-    @PostMapping("/create/product")
-    public ResponseEntity<String> createProduct(@RequestBody ProductDto productDto) {
+    @DeleteMapping("/{title}")
+        public ResponseEntity<String> deleteProduct(@PathVariable String title) {
+            return productService.deleteProduct(title);
+    }
+
+    @PostMapping()
+        public ResponseEntity<String> createProduct(@RequestBody ProductDto productDto) {
         return productService.createProduct(productDto);
     }
 
-    @PostMapping("/add/product")
+    @PostMapping("/add")
         public ResponseEntity<String> addProduct(@RequestBody QuerryProductDto addProductDto){
             return productService.addProduct(addProductDto);
-    }
+        }
 
-    @PostMapping("/reserve/product")
-    public ResponseEntity<String> reserveProduct(@RequestBody QuerryProductDto querryProductDto){
-        return productService.reserve(querryProductDto);
-    }
+    @PostMapping("/reserve")
+        public ResponseEntity<String> reserveProduct(@RequestBody QuerryProductDto querryProductDto){
+            return productService.reserve(querryProductDto);
+        }
 
-    @PostMapping("/release/product")
-    public ResponseEntity<String> releaseProduct(@RequestBody QuerryProductDto querryProductDto){
+    @PostMapping("/release")
+        public ResponseEntity<String> releaseProduct(@RequestBody QuerryProductDto querryProductDto){
         return productService.release(querryProductDto);
     }
 }
